@@ -1,0 +1,700 @@
+openapi: 3.1.0
+info:
+  title: ReqWise API
+  description: API for managing customer project requirements.
+  version: 0.1.0
+paths:
+  /users/register:
+    post:
+      tags:
+      - Users
+      summary: Register a new user
+      description: Registers a new user with a specified username, email, password,
+        role.The password will be hashed before storage. Default role is 'customer'.
+      operationId: register_user_users_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/token:
+    post:
+      tags:
+      - Users
+      summary: User Login
+      description: Authenticates a user and returns an OAuth2 access token.
+      operationId: login_for_access_token_users_token_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_for_access_token_users_token_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /projects/:
+    post:
+      tags:
+      - Projects
+      summary: Create a new project (Owner only)
+      description: Allows an authenticated owner to create a new project.
+      operationId: create_project_for_owner_projects__post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Projects
+      summary: Get all projects (Customer or Owner)
+      description: Retrieves a list of all projects available in the system. Accessible
+        by both customers and owners.
+      operationId: read_all_projects_projects__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectOut'
+                title: Response Read All Projects Projects  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /projects/owner:
+    get:
+      tags:
+      - Projects
+      summary: Get all projects for the current owner (Owner only)
+      description: Retrieves a list of all projects owned by the authenticated owner.
+      operationId: read_projects_for_owner_projects_owner_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectOut'
+                title: Response Read Projects For Owner Projects Owner Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /projects/{project_id}/requirements/:
+    post:
+      tags:
+      - Requirements
+      summary: Create a new requirement for a project (Owner only)
+      description: Allows owner to create requirement for a project they own.
+      operationId: create_requirement_for_project_projects__project_id__requirements__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequirementCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Requirements
+      summary: Get requirements for a specific project (Customer or Owner)
+      description: Retrieves a list of requirements for a given project. Accessible
+        by both customers and owners.
+      operationId: read_requirements_for_project_projects__project_id__requirements__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Project Id
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RequirementOut'
+                title: Response Read Requirements For Project Projects  Project Id  Requirements  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /requirements/{requirement_id}:
+    put:
+      tags:
+      - Requirements
+      summary: Update a requirement (Owner only)
+      description: Allows the owner to update the requirement.
+      operationId: update_single_requirement_requirements__requirement_id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: requirement_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requirement Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequirementUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Requirements
+      summary: Delete a requirement (Owner only)
+      description: Allows an authenticated owner to delete a specific requirement.
+      operationId: delete_single_requirement_requirements__requirement_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: requirement_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requirement Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /requirements/{requirement_id}/status:
+    patch:
+      tags:
+      - Requirements
+      summary: Update requirement status (Owner only)
+      description: Allows an authenticated owner to change the status of requirement.
+      operationId: update_single_requirement_status_requirements__requirement_id__status_patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: requirement_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requirement Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequirementStatusUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Read Root
+      description: "Retrieve a welcome message from the root endpoint.\n\nReturns:\n\
+        \    dict[str, str]: A dictionary containing a welcome message."
+      operationId: read_root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Body_login_for_access_token_users_token_post:
+      properties:
+        grant_type:
+          anyOf:
+          - type: string
+            pattern: ^password$
+          - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          format: password
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          format: password
+          title: Client Secret
+      type: object
+      required:
+      - username
+      - password
+      title: Body_login_for_access_token_users_token_post
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ProjectCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 3
+          title: Name
+          description: Name of the project.
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Detailed description of the project.
+      type: object
+      required:
+      - name
+      title: ProjectCreate
+      description: 'Schema for project creation request body.
+
+
+        Extends `ProjectBase` without additional fields, as the owner ID is
+
+        derived from the authenticated user.'
+    ProjectOut:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 3
+          title: Name
+          description: Name of the project.
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Detailed description of the project.
+        id:
+          type: integer
+          title: Id
+          description: Unique identifier of the project.
+        owner_id:
+          type: integer
+          title: Owner Id
+          description: ID of the user who owns this project.
+      type: object
+      required:
+      - name
+      - id
+      - owner_id
+      title: ProjectOut
+      description: "Schema for project output response body.\n\nExtends `ProjectBase`\
+        \ by including the unique ID and the ID of the\nproject's owner.\n\nAttributes:\n\
+        \    id (int): Unique identifier of the project.\n    owner_id (int): ID of\
+        \ the user who owns this project."
+    RequirementCreate:
+      properties:
+        description:
+          type: string
+          minLength: 5
+          title: Description
+          description: Detailed description of the requirement.
+        type:
+          $ref: '#/components/schemas/RequirementType'
+          description: Type of the requirement (must_have or nice_to_have).
+          default: must_have
+      type: object
+      required:
+      - description
+      title: RequirementCreate
+      description: 'Schema for requirement creation request body.
+
+
+        Extends `RequirementBase` without additional fields, as the project ID is
+
+        derived from the URL path.'
+    RequirementOut:
+      properties:
+        description:
+          type: string
+          minLength: 5
+          title: Description
+          description: Detailed description of the requirement.
+        type:
+          $ref: '#/components/schemas/RequirementType'
+          description: Type of the requirement (must_have or nice_to_have).
+          default: must_have
+        id:
+          type: integer
+          title: Id
+          description: Unique identifier of the requirement.
+        status:
+          $ref: '#/components/schemas/RequirementStatus'
+          description: Current status of the requirement.
+        project_id:
+          type: integer
+          title: Project Id
+          description: ID of the project this requirement belongs to.
+      type: object
+      required:
+      - description
+      - id
+      - status
+      - project_id
+      title: RequirementOut
+      description: "Schema for requirement output response body.\n\nExtends `RequirementBase`\
+        \ by adding fields that are typically generated or\nmanaged by the backend,\
+        \ such as the unique ID, the current status, and\nthe project ID it belongs\
+        \ to.\n\nAttributes:\n    id (int): Unique identifier of the requirement.\n\
+        \    status (RequirementStatus): Current status of the requirement.\n    project_id\
+        \ (int): ID of the project this requirement belongs to."
+    RequirementStatus:
+      type: string
+      enum:
+      - pending
+      - in_PROGRESS
+      - done
+      title: RequirementStatus
+      description: "Define the current status of a requirement.\n\nAttributes:\n \
+        \   PENDING (str): The requirement is awaiting work.\n    IN_PROGRESS (str):\
+        \ The requirement is currently being worked on.\n    DONE (str): The requirement\
+        \ has been completed."
+    RequirementStatusUpdate:
+      properties:
+        status:
+          $ref: '#/components/schemas/RequirementStatus'
+          description: New status of the requirement (pending, in_progress, or done).
+      type: object
+      required:
+      - status
+      title: RequirementStatusUpdate
+      description: "Schema for updating only the status of a requirement request body.\n\
+        \nUsed specifically for changing the progress status of a requirement.\n\n\
+        Attributes:\n    status (RequirementStatus): New status of the requirement,\
+        \ e.g.,\n        'pending', 'in_progress', or 'done'."
+    RequirementType:
+      type: string
+      enum:
+      - must_have
+      - nice_to_have
+      title: RequirementType
+      description: "Define the type of a requirement.\n\nAttributes:\n    MUST_HAVE\
+        \ (str): Indicates a mandatory requirement.\n    NICE_TO_HAVE (str): Indicates\
+        \ an optional or desirable requirement."
+    RequirementUpdate:
+      properties:
+        description:
+          anyOf:
+          - type: string
+            minLength: 5
+          - type: 'null'
+          title: Description
+          description: Updated description of the requirement.
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/RequirementType'
+          - type: 'null'
+          description: Updated type of the requirement.
+      type: object
+      title: RequirementUpdate
+      description: "Schema for updating requirement details request body.\n\nExtends\
+        \ `RequirementBase` with all fields being optional, allowing for\npartial\
+        \ updates of a requirement's description or type.\n\nAttributes:\n    description\
+        \ (str | None): Updated description of the requirement. Optional.\n    type\
+        \ (RequirementType | None): Updated type of the requirement. Optional."
+    Token:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+          description: JWT access token.
+        token_type:
+          type: string
+          title: Token Type
+          description: Type of the token (e.g., 'bearer').
+          default: bearer
+      type: object
+      required:
+      - access_token
+      title: Token
+      description: "Schema for the OAuth2 token response.\n\nRepresents the structure\
+        \ of the access token returned upon successful login.\n\nAttributes:\n   \
+        \ access_token (str): The JWT access token.\n    token_type (str): The type\
+        \ of the token, typically \"bearer\"."
+    UserCreate:
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          minLength: 3
+          title: Username
+          description: Unique username for the user.
+        email:
+          type: string
+          format: email
+          title: Email
+          description: Unique email address for the user.
+        full_name:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Full Name
+          description: Optional full name of the user.
+        password:
+          type: string
+          minLength: 8
+          title: Password
+          description: User's password. Must be at least 8 characters long.
+        role:
+          $ref: '#/components/schemas/UserRole'
+          description: Role of the user (customer or owner).
+          default: customer
+      type: object
+      required:
+      - username
+      - email
+      - password
+      title: UserCreate
+      description: "Schema for user creation request body.\n\nExtends `UserBase` by\
+        \ adding the password and allowing role specification\nduring registration.\n\
+        \nAttributes:\n    password (str): User's password. Must be at least 8 characters\
+        \ long.\n    role (UserRole): Role of the user (customer or owner). Defaults\
+        \ to\n        `UserRole.CUSTOMER`."
+    UserOut:
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          minLength: 3
+          title: Username
+          description: Unique username for the user.
+        email:
+          type: string
+          format: email
+          title: Email
+          description: Unique email address for the user.
+        full_name:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Full Name
+          description: Optional full name of the user.
+        id:
+          type: integer
+          title: Id
+          description: Unique identifier of the user.
+        role:
+          $ref: '#/components/schemas/UserRole'
+          description: Role of the user.
+      type: object
+      required:
+      - username
+      - email
+      - id
+      - role
+      title: UserOut
+      description: "Schema for user output response body.\n\nExtends `UserBase` by\
+        \ including the unique ID and the assigned role,\nsuitable for sending user\
+        \ data to clients without sensitive information.\n\nAttributes:\n    id (int):\
+        \ Unique identifier of the user.\n    role (UserRole): Role of the user."
+    UserRole:
+      type: string
+      enum:
+      - customer
+      - owner
+      title: UserRole
+      description: "Define the possible roles for a user in the system.\n\nAttributes:\n\
+        \    CUSTOMER (str): Represents a customer user.\n    OWNER (str): Represents\
+        \ a project owner user."
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: users/token

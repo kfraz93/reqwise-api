@@ -1,0 +1,83 @@
+[project]
+name = "reqwise-api"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[all]>=0.116.0",
+    "httpx>=0.28.1",
+    "passlib[bcrypt]>=1.7.4",
+    "pytest>=8.4.1",
+    "python-dotenv>=1.1.1",
+    "python-jose[cryptography]>=3.5.0",
+    "pyyaml>=6.0.2",
+    "sqlalchemy>=2.0.41",
+    "uvicorn>=0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.2",
+]
+
+[tool.ruff]
+# The minimum Python version that Ruff will target.
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+# Enable specific lint rules. A common set for FastAPI projects includes:
+# E: pycodestyle errors
+# W: pycodestyle warnings
+# F: Pyflakes errors
+# I: Isort (imports)
+# N: NumPy style guide violation (if applicable, remove if not)
+# D: pydocstyle (docstrings) - recommended since you're using docstrings!
+# UP: pyupgrade
+# B: flake8-bugbear (common issues)
+# C: mccabe (cyclomatic complexity, enable if strict)
+# RUF: Ruff-specific rules
+select = [
+    "E", "W", "F", "I", "N", "D", "UP", "B", "C", "RUF",
+]
+
+ignore = [
+    "D203", # Incompatible with D211 (no blank line before class docstring)
+    "D213", # Incompatible with D212 (multi-line summary on second line)
+    "W292", # Example: Ignore no newline at end of file (if you prefer)
+    "D200", # Docstring one line check should be ignored
+    "D401", # Docstring imperitive check
+    "D205", # Docstring next line error
+    "N806", # Function varriable Case check
+    "B008", # Ignore for FastAPI Depends() usage
+]
+
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "migrations", # If you add Alembic for database migrations
+    "*.db",       # Your SQLite database files
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 88
+indent-style = "space"
+quote-style = "double"
+
+[tool.pytest.ini_options]
+# Specifies the directories where pytest should look for tests.
+# This tells pytest to look in the 'tests' directory.
+pythonpath = ["."] # Add current directory to python path for imports like 'app.models'
+testpaths = [
+    "tests/unit_tests",
+    "tests/functional_tests", # Will be empty for now, but good to include
+]
+# Add any common pytest arguments here.
+# For example, to show more detailed output for failed tests:
+addopts = "-v -s --tb=short"
+# -v: verbose output
+# -s: don't capture stdout/stderr (useful for print statements in tests)
+# --tb=short: short traceback for failures
