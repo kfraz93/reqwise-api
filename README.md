@@ -69,6 +69,8 @@ You can inspect this file to understand all API endpoints, request/response
 schemas, and authentication methods.
 
 For a direct view of the generated schema, click here: [openapi.yaml](./openapi.yaml)
+
+it can be copied in following OpenAPI(3.1.0) viewer (https://editor.xapihub.io/)
 ## Code Quality & Linting
 
 This project uses `Ruff` for linting and formatting.
